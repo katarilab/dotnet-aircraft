@@ -3,3 +3,4 @@ dotnet application test
 
 
 sudo docker run -d --rm  -p 8080:80 dotnet-aircraft:latest
+

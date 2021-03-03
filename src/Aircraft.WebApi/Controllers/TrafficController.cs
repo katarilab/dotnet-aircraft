@@ -12,8 +12,7 @@ namespace Aircraft.WebApi.Controllers
     [Route("[controller]")]
     public class TrafficController : ControllerBase
     {
-        private readonly static ConcurrentQueue<string> State = new ConcurrentQueue<string>();
-        private readonly static ConcurrentDictionary<string, int> View = new ConcurrentDictionary<string, int>();
+        private readonly static ConcurrentQueue<long> State = new ConcurrentQueue<long>();        
         private readonly ILogger<TrafficController> _logger;
 
         public TrafficController(ILogger<TrafficController> logger)
@@ -25,7 +24,7 @@ namespace Aircraft.WebApi.Controllers
         public IEnumerable<int> Get()
         {
             var keys = TrafficController.State.ToArray();
-            var temporal = new Dictionary<string, int>();
+            var temporal = new Dictionary<long, int>();
             foreach (var item in keys)
             {
                 if( temporal.ContainsKey(item)){
@@ -40,34 +39,19 @@ namespace Aircraft.WebApi.Controllers
             return values.Reverse();
         }        
 
-        [HttpGet("view")]
-        public IEnumerable<int> GetSort()
-        {
-            var values = TrafficController.View.Values.Distinct().ToArray();            
-            Array.Sort(values); 
-            return values.Reverse().Take(20);
-        }       
         [HttpPost("reset")]
         public int Reset(){
-            TrafficController.State.Clear();
-            TrafficController.View.Clear();
+            TrafficController.State.Clear();            
             return 0;
         }
         
 
         [HttpPost]
-        public Tuple<string,int> Post(){
-            var key = DateTime.Now.ToString("hh:mm:ss.fff");
-            TrafficController.State.Enqueue(key);           
+        public long Post(){
             
-            TrafficController.View.AddOrUpdate(key, 
-                1, 
-                (key, value) => {                     
-                    return value + 1;                    
-                } 
-            );
-            return new Tuple<string,int>(key, TrafficController.View.GetValueOrDefault(key));
-
+            var key = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            TrafficController.State.Enqueue(key);                                    
+            return key;
         }
     }
 }
