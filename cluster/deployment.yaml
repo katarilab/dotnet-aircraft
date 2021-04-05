@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-dotnet-aircraft  
+  labels:
+    key: pod-dotnet-aircraft
+spec:
+  restartPolicy: Never  
+  containers:      
+    - name: dotnet-aircraft
+      image: k8smaster:5000/dotnet-aircraft:latest
+      imagePullPolicy: Always      
+      ports:
+        - containerPort: 80
+          name: web
+        
+      
